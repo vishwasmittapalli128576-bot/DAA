@@ -1,0 +1,244 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <chrono>
+#include <iomanip>
+
+using namespace std;
+using namespace chrono;
+
+//==================================================
+// GRAPH CLASS
+//==================================================
+class Graph
+{
+private:
+    int vertices;
+    vector<vector<int>> adjacencyList;
+
+public:
+
+    // Constructor
+    Graph(int v)
+    {
+        vertices = v;
+        adjacencyList.resize(vertices);
+    }
+
+    // Add an undirected edge
+    void addEdge(int source, int destination)
+    {
+        adjacencyList[source].push_back(destination);
+        adjacencyList[destination].push_back(source);
+    }
+
+    // Recursive DFS helper
+    void DFSHelper(int current, vector<bool>& visited)
+    {
+        visited[current] = true;
+        cout << current << " ";
+
+        for (int neighbor : adjacencyList[current])
+        {
+            if (!visited[neighbor])
+                DFSHelper(neighbor, visited);
+        }
+    }
+
+    // DFS Traversal
+    void DFS(int start)
+    {
+        vector<bool> visited(vertices, false);
+
+        DFSHelper(start, visited);
+    }
+
+    // BFS Traversal
+    void BFS(int start)
+    {
+        vector<bool> visited(vertices, false);
+        queue<int> q;
+
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty())
+        {
+            int current = q.front();
+            q.pop();
+
+            cout << current << " ";
+
+            for (int neighbor : adjacencyList[current])
+            {
+                if (!visited[neighbor])
+                {
+                    visited[neighbor] = true;
+                    q.push(neighbor);
+                }
+            }
+        }
+    }
+
+    // Display adjacency list
+    void displayGraph()
+    {
+        cout << "\n========== ADJACENCY LIST ==========\n";
+
+        for (int i = 0; i < vertices; i++)
+        {
+            cout << i << " -> ";
+
+            for (int neighbor : adjacencyList[i])
+                cout << neighbor << " ";
+
+            cout << "\n";
+        }
+    }
+};
+
+//==================================================
+// MAIN FUNCTION
+//==================================================
+int main()
+{
+    int vertices, edges;
+
+    cout << "========================================\n";
+    cout << "       GRAPH TRAVERSAL ANALYSIS         \n";
+    cout << "========================================\n";
+
+    // Input vertices
+    cout << "Enter number of vertices: ";
+    cin >> vertices;
+
+    if (cin.fail() || vertices <= 0)
+    {
+        cout << "Invalid number of vertices!\n";
+        return 1;
+    }
+
+    Graph graph(vertices);
+
+    // Input edges
+    cout << "Enter number of edges: ";
+    cin >> edges;
+
+    if (cin.fail() || edges < 0)
+    {
+        cout << "Invalid number of edges!\n";
+        return 1;
+    }
+
+    cout << "\nEnter edges in the format (source destination):\n";
+
+    for (int i = 0; i < edges; i++)
+    {
+        int source, destination;
+
+        cin >> source >> destination;
+
+        if (source < 0 || source >= vertices ||
+            destination < 0 || destination >= vertices)
+        {
+            cout << "Invalid edge! Vertices must be between 0 and "
+                 << vertices - 1 << ".\n";
+
+            i--;
+            continue;
+        }
+
+        graph.addEdge(source, destination);
+    }
+
+    // Display graph
+    graph.displayGraph();
+
+    // Starting vertex
+    int start;
+
+    cout << "\nEnter starting vertex: ";
+    cin >> start;
+
+    if (start < 0 || start >= vertices)
+    {
+        cout << "Invalid starting vertex!\n";
+        return 1;
+    }
+
+    //==================================================
+    // DFS
+    //==================================================
+
+    auto dfsStart = high_resolution_clock::now();
+
+    cout << "\nDFS Traversal: ";
+    graph.DFS(start);
+
+    auto dfsEnd = high_resolution_clock::now();
+
+    auto dfsTime =
+        duration_cast<nanoseconds>(dfsEnd - dfsStart).count();
+
+    //==================================================
+    // BFS
+    //==================================================
+
+    auto bfsStart = high_resolution_clock::now();
+
+    cout << "\nBFS Traversal: ";
+    graph.BFS(start);
+
+    auto bfsEnd = high_resolution_clock::now();
+
+    auto bfsTime =
+        duration_cast<nanoseconds>(bfsEnd - bfsStart).count();
+
+    //==================================================
+    // EXECUTION TIME
+    //==================================================
+
+    cout << "\n\n========================================\n";
+    cout << "          EXECUTION TIME                \n";
+    cout << "========================================\n";
+
+    cout << left << setw(20)
+         << "DFS"
+         << dfsTime << " ns\n";
+
+    cout << left << setw(20)
+         << "BFS"
+         << bfsTime << " ns\n";
+
+    //==================================================
+    // COMPLEXITY
+    //==================================================
+
+    cout << "\n========================================\n";
+    cout << "          TIME COMPLEXITY               \n";
+    cout << "========================================\n";
+
+    cout << "DFS : O(V + E)\n";
+    cout << "BFS : O(V + E)\n";
+
+    cout << "\nSpace Complexity:\n";
+    cout << "DFS : O(V)\n";
+    cout << "BFS : O(V)\n";
+
+    //==================================================
+    // COMPARISON
+    //==================================================
+
+    cout << "\n========================================\n";
+    cout << "              COMPARISON                \n";
+    cout << "========================================\n";
+
+    if (dfsTime < bfsTime)
+        cout << "DFS was faster for this input.\n";
+    else if (bfsTime < dfsTime)
+        cout << "BFS was faster for this input.\n";
+    else
+        cout << "Both traversals took the same time.\n";
+
+    return 0;
+}
