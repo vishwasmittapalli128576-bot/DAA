@@ -1,0 +1,251 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <chrono>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+
+using namespace std;
+using namespace chrono;
+
+//==================================================
+// MAX HEAPIFY
+//==================================================
+void maxHeapify(vector<int>& arr, int size, int index)
+{
+    int largest = index;
+    int leftChild = 2 * index + 1;
+    int rightChild = 2 * index + 2;
+
+    if (leftChild < size && arr[leftChild] > arr[largest])
+        largest = leftChild;
+
+    if (rightChild < size && arr[rightChild] > arr[largest])
+        largest = rightChild;
+
+    if (largest != index)
+    {
+        swap(arr[index], arr[largest]);
+        maxHeapify(arr, size, largest);
+    }
+}
+
+//==================================================
+// MAX HEAP SORT
+//==================================================
+void maxHeapSort(vector<int>& arr)
+{
+    int size = arr.size();
+
+    // Build Max Heap
+    for (int i = size / 2 - 1; i >= 0; i--)
+        maxHeapify(arr, size, i);
+
+    // Extract elements from heap
+    for (int i = size - 1; i > 0; i--)
+    {
+        swap(arr[0], arr[i]);
+        maxHeapify(arr, i, 0);
+    }
+}
+
+//==================================================
+// MIN HEAPIFY
+//==================================================
+void minHeapify(vector<int>& arr, int size, int index)
+{
+    int smallest = index;
+    int leftChild = 2 * index + 1;
+    int rightChild = 2 * index + 2;
+
+    if (leftChild < size && arr[leftChild] < arr[smallest])
+        smallest = leftChild;
+
+    if (rightChild < size && arr[rightChild] < arr[smallest])
+        smallest = rightChild;
+
+    if (smallest != index)
+    {
+        swap(arr[index], arr[smallest]);
+        minHeapify(arr, size, smallest);
+    }
+}
+
+//==================================================
+// MIN HEAP SORT
+//==================================================
+void minHeapSort(vector<int>& arr)
+{
+    int size = arr.size();
+
+    // Build Min Heap
+    for (int i = size / 2 - 1; i >= 0; i--)
+        minHeapify(arr, size, i);
+
+    // Extract elements
+    for (int i = size - 1; i > 0; i--)
+    {
+        swap(arr[0], arr[i]);
+        minHeapify(arr, i, 0);
+    }
+
+    // Convert descending order to ascending order
+    reverse(arr.begin(), arr.end());
+}
+
+//==================================================
+// CHECK WHETHER ARRAY IS SORTED
+//==================================================
+bool isSorted(const vector<int>& arr)
+{
+    return is_sorted(arr.begin(), arr.end());
+}
+
+//==================================================
+// DISPLAY FIRST FEW ELEMENTS
+//==================================================
+void displaySample(const vector<int>& arr)
+{
+    int limit = min(10, static_cast<int>(arr.size()));
+
+    for (int i = 0; i < limit; i++)
+        cout << arr[i] << " ";
+
+    if (arr.size() > 10)
+        cout << "...";
+
+    cout << endl;
+}
+
+//==================================================
+// MAIN FUNCTION
+//==================================================
+int main()
+{
+    int n;
+
+    cout << "============================================\n";
+    cout << "        HEAP SORT PERFORMANCE TEST          \n";
+    cout << "============================================\n";
+
+    cout << "Enter number of elements: ";
+    cin >> n;
+
+    if (cin.fail() || n <= 0)
+    {
+        cout << "Invalid input! Enter a positive number.\n";
+        return 1;
+    }
+
+    // Create random array
+    vector<int> original(n);
+
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+    for (int i = 0; i < n; i++)
+        original[i] = rand() % 100000;
+
+    // Create copies for both sorting methods
+    vector<int> maxHeapArray = original;
+    vector<int> minHeapArray = original;
+
+    //==================================================
+    // MAX HEAP SORT TIMING
+    //==================================================
+    auto startMax = high_resolution_clock::now();
+
+    maxHeapSort(maxHeapArray);
+
+    auto endMax = high_resolution_clock::now();
+
+    //==================================================
+    // MIN HEAP SORT TIMING
+    //==================================================
+    auto startMin = high_resolution_clock::now();
+
+    minHeapSort(minHeapArray);
+
+    auto endMin = high_resolution_clock::now();
+
+    // Calculate times
+    auto maxNano =
+        duration_cast<nanoseconds>(endMax - startMax).count();
+
+    auto maxMicro =
+        duration_cast<microseconds>(endMax - startMax).count();
+
+    auto maxMilli =
+        duration_cast<milliseconds>(endMax - startMax).count();
+
+    auto minNano =
+        duration_cast<nanoseconds>(endMin - startMin).count();
+
+    auto minMicro =
+        duration_cast<microseconds>(endMin - startMin).count();
+
+    auto minMilli =
+        duration_cast<milliseconds>(endMin - startMin).count();
+
+    //==================================================
+    // DISPLAY RESULTS
+    //==================================================
+
+    cout << "\n============================================\n";
+    cout << "              TEST RESULTS                 \n";
+    cout << "============================================\n";
+
+    cout << "Number of Elements : " << n << "\n";
+
+    cout << "\nOriginal Array Sample:\n";
+    displaySample(original);
+
+    cout << "\n---------- MAX HEAP SORT ----------\n";
+    cout << "Time (ns)  : " << maxNano << " ns\n";
+    cout << "Time (us)  : " << maxMicro << " us\n";
+    cout << "Time (ms)  : " << maxMilli << " ms\n";
+    cout << "Sorted     : "
+         << (isSorted(maxHeapArray) ? "Yes" : "No") << "\n";
+
+    cout << "\nSorted Array Sample:\n";
+    displaySample(maxHeapArray);
+
+    cout << "\n---------- MIN HEAP SORT ----------\n";
+    cout << "Time (ns)  : " << minNano << " ns\n";
+    cout << "Time (us)  : " << minMicro << " us\n";
+    cout << "Time (ms)  : " << minMilli << " ms\n";
+    cout << "Sorted     : "
+         << (isSorted(minHeapArray) ? "Yes" : "No") << "\n";
+
+    cout << "\nSorted Array Sample:\n";
+    displaySample(minHeapArray);
+
+    //==================================================
+    // COMPLEXITY
+    //==================================================
+
+    cout << "\n============================================\n";
+    cout << "              COMPLEXITY                   \n";
+    cout << "============================================\n";
+
+    cout << "Max Heap Sort : O(n log n)\n";
+    cout << "Min Heap Sort : O(n log n)\n";
+    cout << "Extra Space   : O(log n) recursion stack\n";
+
+    //==================================================
+    // COMPARISON
+    //==================================================
+
+    cout << "\n============================================\n";
+    cout << "              COMPARISON                   \n";
+    cout << "============================================\n";
+
+    if (maxNano < minNano)
+        cout << "Max Heap Sort is faster for this test.\n";
+    else if (minNano < maxNano)
+        cout << "Min Heap Sort is faster for this test.\n";
+    else
+        cout << "Both algorithms took the same time.\n";
+
+    return 0;
+}
