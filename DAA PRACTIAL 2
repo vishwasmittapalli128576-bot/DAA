@@ -1,0 +1,129 @@
+#include <iostream>
+#include <vector>
+#include <chrono>
+#include <iomanip>
+
+using namespace std;
+using namespace chrono;
+
+// Linear Search
+int linearSearch(const vector<int>& arr, int key)
+{
+    for (int i = 0; i < static_cast<int>(arr.size()); i++)
+    {
+        if (arr[i] == key)
+            return i;
+    }
+
+    return -1;
+}
+
+// Binary Search
+int binarySearch(const vector<int>& arr, int key)
+{
+    int low = 0;
+    int high = static_cast<int>(arr.size()) - 1;
+
+    while (low <= high)
+    {
+        int mid = low + (high - low) / 2;
+
+        if (arr[mid] == key)
+            return mid;
+
+        if (arr[mid] < key)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+
+    return -1;
+}
+
+// Display Search Result
+void displayResult(const string& searchType,
+                   int index,
+                   long long timeTaken)
+{
+    cout << "\n" << searchType << "\n";
+    cout << "----------------------------------\n";
+
+    if (index != -1)
+        cout << "Element found at index : " << index << endl;
+    else
+        cout << "Element not found\n";
+
+    cout << "Time Taken              : "
+         << timeTaken << " microseconds\n";
+}
+
+int main()
+{
+    const int n = 100000;
+
+    // Create sorted array
+    vector<int> arr(n);
+
+    for (int i = 0; i < n; i++)
+        arr[i] = i + 1;
+
+    int key;
+
+    cout << "========================================\n";
+    cout << "       SEARCHING ALGORITHM ANALYSIS     \n";
+    cout << "========================================\n";
+    cout << "Number of Elements : " << n << endl;
+
+    cout << "\nEnter element to search (1 - "
+         << n << "): ";
+    cin >> key;
+
+    if (cin.fail())
+    {
+        cout << "Invalid input!\n";
+        return 1;
+    }
+
+    // ---------------- Linear Search ----------------
+    auto start = high_resolution_clock::now();
+
+    int linearIndex = linearSearch(arr, key);
+
+    auto stop = high_resolution_clock::now();
+
+    long long linearTime =
+        duration_cast<microseconds>(stop - start).count();
+
+    displayResult("LINEAR SEARCH", linearIndex, linearTime);
+
+    // ---------------- Binary Search ----------------
+    start = high_resolution_clock::now();
+
+    int binaryIndex = binarySearch(arr, key);
+
+    stop = high_resolution_clock::now();
+
+    long long binaryTime =
+        duration_cast<microseconds>(stop - start).count();
+
+    displayResult("BINARY SEARCH", binaryIndex, binaryTime);
+
+    // ---------------- Comparison ----------------
+    cout << "\n========================================\n";
+    cout << "              COMPARISON                \n";
+    cout << "========================================\n";
+
+    cout << left << setw(20) << "Linear Search"
+         << linearTime << " microseconds\n";
+
+    cout << left << setw(20) << "Binary Search"
+         << binaryTime << " microseconds\n";
+
+    cout << "\nTime Complexity:\n";
+    cout << "Linear Search : O(n)\n";
+    cout << "Binary Search : O(log n)\n";
+
+    cout << "\nNote: Binary Search requires a sorted array.\n";
+
+    return 0;
+}
